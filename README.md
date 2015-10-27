@@ -8,12 +8,19 @@
 
 -----This is not finished yet-----
 
-Create a master detail application to view the contents of a wine list.
-The master part will display a list of all of the wine items in the list.
-The Detail part will display the details of a specific wine item.
+Create a master detail application to view the contents of a beverage list.
+The master part will display a list of all of the beverage items in the list.
+The Detail part will display the details of a specific beverage item.
 The User should be able to go up and down items in the list by swiping left or right on a detail page.
 The App should look like the screen shots I have provided.
-There is no need to save any information changed to the CSV file.
+There is no need to save any information changed in the application to the CSV file.
+
+The properties of the CSV file are as follows:
+1. Item Number
+2. Item Description
+3. Item Pack Size
+4. Case Price
+5. Currently Active Item
 
 Solution Requirements:
 
@@ -22,10 +29,10 @@ Solution Requirements:
 * Portrait Detail layout
 * Landscape Detail layout
 * Fragments for all of the layouts
-* Class to represent a Wine Item
-* ArrayList for the list of Wine Items
+* Class to represent a Beverage Item
+* ArrayList for the list of Beverage Items
 * ListView to display the master view
-* Read in CSV file and create ArrayList of Wine Items from the data in the CSV file
+* Read in CSV file and create ArrayList of Beverage Items from the data in the CSV file
 * Use View Pager to swipe left and right on detail page to go up and down in the list
 * Should look like the screen shots provided
 * Remember Documentation, and README
