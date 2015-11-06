@@ -1,5 +1,6 @@
 package edu.kvcc.cis298.cis298assignment3;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -36,11 +37,22 @@ public class BeverageListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateUI();
+    }
+
     private void updateUI() {
         BeverageCollection beverageCollection = BeverageCollection.get(getActivity());
         List<Beverage> beverages = beverageCollection.getBeverages();
 
-        mBeverageAdapter = new BeverageAdapter(beverages);mBeverageRecyclerView.setAdapter(mBeverageAdapter);
+        if (mBeverageAdapter == null) {
+            mBeverageAdapter = new BeverageAdapter(beverages);
+            mBeverageRecyclerView.setAdapter(mBeverageAdapter);
+        } else {
+            mBeverageAdapter.notifyDataSetChanged();
+        }
     }
 
     private class BeverageHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -72,7 +84,8 @@ public class BeverageListFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(getActivity(), mBeverage.getName() + " Clicked!", Toast.LENGTH_SHORT).show();
+            Intent intent = BeverageActivity.newIntent(getActivity(), mBeverage.getId());
+            startActivity(intent);
         }
     }
 

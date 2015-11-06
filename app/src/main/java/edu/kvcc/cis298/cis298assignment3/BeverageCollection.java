@@ -35,7 +35,7 @@ public class BeverageCollection {
         return mBeverages;
     }
 
-    public Beverage getCrime(String Id) {
+    public Beverage getBeverage(String Id) {
         for (Beverage beverage : mBeverages) {
             if (beverage.getId().equals(Id)) {
                 return beverage;
@@ -63,7 +63,7 @@ public class BeverageCollection {
                 double price = Double.parseDouble(parts[3]);
                 boolean active;
 
-                active = ((parts[4].equals("true")));
+                active = ((parts[4].equals("True")));
                 mBeverages.add(new Beverage(id, name, pack, price, active));
             }
 

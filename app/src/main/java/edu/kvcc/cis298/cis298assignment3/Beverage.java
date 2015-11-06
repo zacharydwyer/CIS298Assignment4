@@ -11,6 +11,10 @@ public class Beverage {
     private double mPrice;
     private boolean mActive;
 
+    public Beverage() {
+        //Do Nothing
+    }
+
     public Beverage(String Id, String Name, String Pack, double Price, boolean Active) {
         mId = Id;
         mName = Name;
