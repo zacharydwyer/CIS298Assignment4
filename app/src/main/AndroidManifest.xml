@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BeverageActivity"
+            android:name=".BeveragePagerActivity"
             android:label="@string/app_name" >
         </activity>
     </application>
