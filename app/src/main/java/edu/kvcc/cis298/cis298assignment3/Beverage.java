@@ -5,6 +5,7 @@ package edu.kvcc.cis298.cis298assignment3;
  */
 public class Beverage {
 
+    //Private member variables for the model
     private String mId;
     private String mName;
     private String mPack;
@@ -15,6 +16,7 @@ public class Beverage {
         //Do Nothing
     }
 
+    //5 parameter constructor to set the properties of the model
     public Beverage(String Id, String Name, String Pack, double Price, boolean Active) {
         mId = Id;
         mName = Name;
@@ -23,6 +25,7 @@ public class Beverage {
         mActive = Active;
     }
 
+    //Getters and Setters
     public String getId() {
         return mId;
     }

@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment;
  */
 public class BeverageListActivity extends SingleFragmentActivity {
 
+    //Since this activity inherits from singleFragmentActivity, the only work we have to do
+    //is override this createFragment method and return a new BeverageListFragment
     @Override
     protected Fragment createFragment() {
         return new BeverageListFragment();
