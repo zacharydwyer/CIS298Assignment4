@@ -1,4 +1,4 @@
-package edu.kvcc.cis298.cis298assignment3;
+package edu.kvcc.cis298.cis298assignment4;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +17,7 @@ import java.util.List;
 public class BeveragePagerActivity extends FragmentActivity {
 
     //String that can be used as a key for sendin data between activities
-    private static final String EXTRA_BEVERAGE_ID = "edu.kvcc.cis298.cis298assignment3.beverage_id";
+    private static final String EXTRA_BEVERAGE_ID = "edu.kvcc.cis298.cis298assignment4.beverage_id";
 
     //Private vars for the viewpager and the list of beverages
     private ViewPager mViewPager;

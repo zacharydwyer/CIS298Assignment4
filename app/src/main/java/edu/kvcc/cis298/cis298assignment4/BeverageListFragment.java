@@ -1,4 +1,4 @@
-package edu.kvcc.cis298.cis298assignment3;
+package edu.kvcc.cis298.cis298assignment4;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.NumberFormat;
 import java.util.List;
