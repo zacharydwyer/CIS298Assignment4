@@ -57,6 +57,13 @@ public class BeverageCollection {
         return null;
     }
 
+    // Populate beverage list with a brand new list, start from scratch.
+    public void setBeverages(List<Beverage> beverageList) {
+
+        // Completely overwrite the beverage list with this new one.
+        this.mBeverages = beverageList;
+    }
+
     //Method to load the beverage list from a CSV file
     private void loadBeverageList() {
 

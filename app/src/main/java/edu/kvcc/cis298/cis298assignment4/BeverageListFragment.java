@@ -1,6 +1,7 @@
 package edu.kvcc.cis298.cis298assignment4;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,14 @@ public class BeverageListFragment extends Fragment {
     //Private variables for the recycler view and the required adapter
     private RecyclerView mBeverageRecyclerView;
     private BeverageAdapter mBeverageAdapter;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Start fetching the beverages in a new thread, then set up the Adapter.
+        new FetchBeveragesTask().execute();
+    }
 
     @Nullable
     @Override
@@ -52,16 +61,18 @@ public class BeverageListFragment extends Fragment {
     //Method to setup the view with an adapter if it doesn't already have one.
     //and update changes if it does.
     private void updateUI() {
+
         //Get the collection of data.
         BeverageCollection beverageCollection = BeverageCollection.get(getActivity());
+
         //Fetch the list of data from the collection
         List<Beverage> beverages = beverageCollection.getBeverages();
 
         //If there is no adapter, make a new one and send it in the list of beverages
         if (mBeverageAdapter == null) {
-            mBeverageAdapter = new BeverageAdapter(beverages);
-            //set the adapter for the recyclerview to the newly created adapter
-            mBeverageRecyclerView.setAdapter(mBeverageAdapter);
+
+            // Set up the adapter
+            setupAdapter();
         } else {
             //adapter already exists, so just call the notify data set changed method to update
             mBeverageAdapter.notifyDataSetChanged();
@@ -151,4 +162,58 @@ public class BeverageListFragment extends Fragment {
             return mBeverages.size();
         }
     }
+
+    private class FetchBeveragesTask extends AsyncTask<Void, Void, List<Beverage>> {
+
+        // This method executes the BeverageFetcher, which goes on the Internet and brings down
+        // a <Beverage> List. It will then pass its results into onPostExecute.
+        @Override
+        protected List<Beverage> doInBackground(Void... params) {
+            return new BeverageFetcher().fetchBeverages();
+        }
+
+        // This is executed and given the argument from doInBackground.
+        @Override
+        protected void onPostExecute(List<Beverage> beverages) {
+
+            // Get reference to singleton collection of Beverages.
+            BeverageCollection collection = BeverageCollection.get(getActivity());
+
+            // Populate data singleton's list with the beverages we just received.
+            collection.setBeverages(beverages);
+
+            // Now that the collection is proper, we can set up the adapter.
+            setupAdapter();
+        }
+    }
+
+    private void setupAdapter() {
+
+        // If the Fragment has already been added to the Activity...
+        if(isAdded()) {
+            BeverageCollection collection = BeverageCollection.get(getActivity());      // Get the collection of beverages.
+            mBeverageAdapter = new BeverageAdapter(collection.getBeverages());          // Create an adapter with it.
+            mBeverageRecyclerView.setAdapter(mBeverageAdapter);                         // Give the RecyclerView that adapter.
+        }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
