@@ -1,26 +1,27 @@
 package edu.kvcc.cis298.cis298assignment4;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.util.Log;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-/**
- * Created by David Barnes on 11/3/2015.
- * This is a singleton that will store the data for our application
- */
+import edu.kvcc.cis298.cis298assignment4.database.BeverageBaseHelper;
+import edu.kvcc.cis298.cis298assignment4.database.BeverageCursorWrapper;
+import edu.kvcc.cis298.cis298assignment4.database.BeverageDbSchema;
+
+import static edu.kvcc.cis298.cis298assignment4.database.BeverageDbSchema.*;
+
+
 public class BeverageCollection {
 
-    //Static variable that represents this class
-    private static BeverageCollection sBeverageCollection;
+    private static final String TAG = "BeverageCollection";
 
-    //private variable for the context that the singleton operates in
-    private Context mContext;
-
-    //List to store all of the beverages
-    private List<Beverage> mBeverages;
+    private static BeverageCollection sBeverageCollection;              // Singleton instance
+    private Context mContext;                                           // Context of application
+    private SQLiteDatabase mDatabase;                                   // The database itself
 
     //public static method to get the single instance of this class
     public static BeverageCollection get(Context context) {
@@ -35,71 +36,127 @@ public class BeverageCollection {
 
     //Private constructor to create a new BeverageCollection
     private BeverageCollection(Context context) {
-        //Make a new list to hold the beverages
-        mBeverages = new ArrayList<>();
-        //Set the context to the one that is passed in
-        mContext = context;
-        //Call the private method to load the beverage list
-        loadBeverageList();
+        mContext = context.getApplicationContext();                             // Set the context of this to the application context. Not sure why we have to change this though.
+
+        // Open the database file. If the first time its been created, call onCreate. If not the first time, call onUpgrade.
+        mDatabase = new BeverageBaseHelper(mContext).getWritableDatabase();
     }
 
-    //Getters
+    /**
+     * Add a beverage to the database.
+     * @param b
+     */
+    public void addBeverage(Beverage b) {
+        // Get the content values for the passed in beverage
+        ContentValues contentValuesForBeverage = getContentValues(b);
+
+        // Insert the set of content values into the BeverageTable.
+        mDatabase.insert(BeverageTable.NAME, null, contentValuesForBeverage);
+    }
+
     public List<Beverage> getBeverages() {
-        return mBeverages;
+        List<Beverage> beverages = new ArrayList<>();
+
+        // Return THE ENTIRE DATABASE.
+        BeverageCursorWrapper cursor = queryBeverages(null, null);
+
+        try {
+            cursor.moveToFirst();       // Start at the first row.
+
+            // While we are not at the position after the last row (meaning while there's still rows left to read)
+            while (! cursor.isAfterLast()) {
+
+                // Make the beverageCursorWrapper (cursor) create a beverage from the data in the current row that it is on.
+                beverages.add(cursor.getBeverage());
+
+                // Move to the next row.
+                cursor.moveToNext();
+            }
+        } finally {
+            // Close this cursor, android will yell at us if we don't. Or we'll run out of open file handles and crash our app.
+            cursor.close();
+        }
+
+        // Finally, return the List<Beverage> of beverages we just created.
+        return beverages;
     }
 
-    public Beverage getBeverage(String Id) {
-        for (Beverage beverage : mBeverages) {
-            if (beverage.getId().equals(Id)) {
-                return beverage;
+    public Beverage getBeverage(String id) {
+
+        // Query to get the beverage(s) with the given "id" argument in the ID column.
+        BeverageCursorWrapper cursor = queryBeverages(
+                BeverageTable.Cols.ID + " = ?",
+                new String[] { id }
+        );
+
+        try {
+            // If there were no beverages with that id...
+            if (cursor.getCount() == 0) {
+
+                // return nothing.
+                return null;
             }
+
+            // Go to the first row.
+            cursor.moveToFirst();
+
+            // Create a beverage out of the row we're on, and return it.
+            return cursor.getBeverage();
+        } finally {
+
+            // Close your cursor.
+            cursor.close();
         }
-        return null;
+    }
+
+    public void updateBeverage(Beverage beverage) {
+
+        // Get usable key-value package for the beverage.
+        ContentValues values = getContentValues(beverage);
+
+        // Update the Beverage table using the ContentValues package we just got, where the Beverage's ID is equal to the beverage that was passed in.
+        mDatabase.update(BeverageTable.NAME, values, BeverageTable.Cols.ID + " = ?", new String[] { beverage.getId() });
+    }
+
+    // Creates a package of ContentValues out of a Beverage, which can later be used to add to the database.
+    private static ContentValues getContentValues(Beverage beverage) {
+        // New pack of values.
+        ContentValues values = new ContentValues();
+
+        // Populate this pack of values.
+        values.put(BeverageTable.Cols.ID, beverage.getId());
+        values.put(BeverageTable.Cols.NAME, beverage.getName());
+        values.put(BeverageTable.Cols.PACK, beverage.getPack());
+        values.put(BeverageTable.Cols.PRICE, beverage.getPrice());
+        values.put(BeverageTable.Cols.ACTIVE, beverage.isActive() ? 1 : 0);     // stores 1 if true, 0 is false.
+
+        return values;      // Return the ContentValues package.
+    }
+
+    private BeverageCursorWrapper queryBeverages(String whereClause, String[] whereArgs) {
+
+        // Query the database with the passed in arguments.
+        Cursor cursor = mDatabase.query(
+                BeverageTable.NAME,         // Name of table we are querying
+                null,                       // Columns we are selecting (null means the entire row)
+                whereClause,                // What column are we looking at? (for example, the ID)
+                whereArgs,                  // What must the value of that column be in order for us to return the row?
+                null,                       // Group by
+                null,                       // Having
+                null                        // Order by
+        );
+
+        return new BeverageCursorWrapper(cursor);
     }
 
     // Populate beverage list with a brand new list, start from scratch.
+    // This will actually add values into the database.
     public void setBeverages(List<Beverage> beverageList) {
 
-        // Completely overwrite the beverage list with this new one.
-        this.mBeverages = beverageList;
-    }
+        // For each beverage in beverageList...
+        for (Beverage currentBeverage : beverageList) {
 
-    //Method to load the beverage list from a CSV file
-    private void loadBeverageList() {
-
-        //Define a scanner
-        Scanner scanner = null;
-
-        try {
-
-            //Instanciate a new scanner
-            scanner = new Scanner(mContext.getResources().openRawResource(R.raw.beverage_list));
-
-            //While the scanner has another line to read
-            while (scanner.hasNextLine()) {
-
-                //Get the next line and split it into parts
-                String line = scanner.nextLine();
-                String parts[] = line.split(",");
-
-                //Assign each part to a local var
-                String id = parts[0];
-                String name = parts[1];
-                String pack = parts[2];
-
-                //setup some vars for doing parsing
-                double price = Double.parseDouble(parts[3]);
-                boolean active = ((parts[4].equals("True")));
-
-                //Add the beverage to the list
-                mBeverages.add(new Beverage(id, name, pack, price, active));
-            }
-
-        //catch any errors that occur and finally close the scanner
-        } catch (Exception e) {
-            Log.e("Read CSV", e.toString());
-        } finally {
-            scanner.close();
+            this.addBeverage(currentBeverage);
         }
     }
 }

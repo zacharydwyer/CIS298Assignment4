@@ -28,7 +28,7 @@ public class BeverageListFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Start fetching the beverages in a new thread, then set up the Adapter.
+        // Start fetching the beverages in a new thread
         new FetchBeveragesTask().execute();
     }
 
@@ -65,16 +65,17 @@ public class BeverageListFragment extends Fragment {
         //Get the collection of data.
         BeverageCollection beverageCollection = BeverageCollection.get(getActivity());
 
-        //Fetch the list of data from the collection
+        // Get the beverages from the collection's database.
         List<Beverage> beverages = beverageCollection.getBeverages();
 
-        //If there is no adapter, make a new one and send it in the list of beverages
+        // If there is no adapter, make a new one and send it in the list of beverages
         if (mBeverageAdapter == null) {
 
             // Set up the adapter
             setupAdapter();
         } else {
-            //adapter already exists, so just call the notify data set changed method to update
+            // Update the beverages adapter.
+            mBeverageAdapter.setBeverages(beverages);
             mBeverageAdapter.notifyDataSetChanged();
         }
     }
@@ -161,12 +162,15 @@ public class BeverageListFragment extends Fragment {
         public int getItemCount() {
             return mBeverages.size();
         }
+
+        public void setBeverages(List<Beverage> beverages) {
+            mBeverages = beverages;
+        }
     }
 
     private class FetchBeveragesTask extends AsyncTask<Void, Void, List<Beverage>> {
 
-        // This method executes the BeverageFetcher, which goes on the Internet and brings down
-        // a <Beverage> List. It will then pass its results into onPostExecute.
+        // Gets a list of beverages out of the JSON file on the internet.
         @Override
         protected List<Beverage> doInBackground(Void... params) {
             return new BeverageFetcher().fetchBeverages();
@@ -179,7 +183,7 @@ public class BeverageListFragment extends Fragment {
             // Get reference to singleton collection of Beverages.
             BeverageCollection collection = BeverageCollection.get(getActivity());
 
-            // Populate data singleton's list with the beverages we just received.
+            // Populate data singleton's database with this new list of beverages.
             collection.setBeverages(beverages);
 
             // Now that the collection is proper, we can set up the adapter.

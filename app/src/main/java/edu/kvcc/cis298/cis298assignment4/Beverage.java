@@ -1,5 +1,7 @@
 package edu.kvcc.cis298.cis298assignment4;
 
+import java.util.UUID;
+
 /**
  * Created by David Barnes on 11/3/2015.
  */
@@ -12,8 +14,14 @@ public class Beverage {
     private double mPrice;
     private boolean mActive;
 
+    // Constructor for beverages that don't have IDs. This won't happen but just for later
     public Beverage() {
-        //Do Nothing
+        // Generate a random UUID as the ID.
+        this(UUID.randomUUID().toString());
+    }
+
+    public Beverage(String id) {
+        mId = id;
     }
 
     //5 parameter constructor to set the properties of the model

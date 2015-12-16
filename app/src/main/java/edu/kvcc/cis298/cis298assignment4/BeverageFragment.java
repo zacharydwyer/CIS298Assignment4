@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +23,6 @@ import android.widget.Toast;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-/**
- * Created by David Barnes on 11/3/2015.
- */
 public class BeverageFragment extends Fragment {
 
     // Request for a contact request code
@@ -66,6 +62,14 @@ public class BeverageFragment extends Fragment {
         super.onCreate(savedInstanceState);
         String beverageId = getArguments().getString(ARG_BEVERAGE_ID);              // Retrieve beverage ID from the bundle that was stuffed into this fragment in the "constructor".
         mBeverage = BeverageCollection.get(getActivity()).getBeverage(beverageId);  // Get the appropriate beverage by using its ID.
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // Beverages get modified in BeverageFragment, so when this fragment pauses, write out the changes and update the database.
+        BeverageCollection.get(getActivity()).updateBeverage(mBeverage);
     }
 
     @Nullable
@@ -149,6 +153,7 @@ public class BeverageFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mBeverage.setPack(s.toString());
+                BeverageCollection.get(getActivity()).updateBeverage(mBeverage);
             }
 
             @Override
@@ -168,9 +173,11 @@ public class BeverageFragment extends Fragment {
                 //parsed number that is input.
                 if (count > 0) {
                     mBeverage.setPrice(Double.parseDouble(s.toString()));
+                    BeverageCollection.get(getActivity()).updateBeverage(mBeverage);
                 //else there is no text in the box and therefore can't be parsed. Just set the price to zero.
                 } else {
                     mBeverage.setPrice(0);
+                    BeverageCollection.get(getActivity()).updateBeverage(mBeverage);
                 }
             }
 
@@ -275,8 +282,6 @@ public class BeverageFragment extends Fragment {
                 "Price: " + priceString + "\n" +
                 isActiveString;
 
-        Log.i(TAG, "Body of email: " + bodyOfEmail);
-
         // Return the email body string.
         return bodyOfEmail;
     }
@@ -359,11 +364,9 @@ public class BeverageFragment extends Fragment {
         String name = null;
         String email = null;
 
-        Log.i(TAG, "Checking cursor for results...");
         // If there were results...
         if (cur.getCount() > 0) {
 
-            Log.i(TAG, "Results found! Amount: " + cur.getCount());
             // While the cursor can move to another row
             while (cur.moveToNext()) {
 
@@ -381,11 +384,9 @@ public class BeverageFragment extends Fragment {
 
                     // Get the name of the contact.
                     name = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    Log.e(TAG, "Name :" + name);
 
                     // Get the email of the contact.
                     email = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                    Log.e(TAG, "Email: " + email);
                     if(email!=null){
                         names.add(name);
                     }
