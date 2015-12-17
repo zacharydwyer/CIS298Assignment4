@@ -80,4 +80,4 @@ The application must do all of the above work to get the extra credit. In order 
 * Getting the name and email largely relies on the code mentioned in http://stackoverflow.com/questions/10117049/get-only-email-address-from-contact-list-android (I had a lot of issues trying to figure out how to access a contact's email)
 
 ## Known Problems, Issues, And/Or Errors in the Program
-None known. 
+Long wait time when starting the program. Moderate lag when going back to the RecyclerView. Nearly 10 seconds of wait time after rotation.
