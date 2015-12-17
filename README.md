@@ -1,4 +1,5 @@
 # Assignment 4 - Add Implicit Intents and HTTP data loading to Beverage app.
+**Extra Credit attempted**
 
 ## Author
 Zachary Dwyer
